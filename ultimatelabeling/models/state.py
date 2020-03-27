@@ -66,7 +66,7 @@ class State:
     def get_file_name(self, frame=None):
         if frame is None:
             frame = self.current_frame
-
+            
         file_path = self.file_names[frame]
         base = os.path.basename(file_path)
         return os.path.splitext(base)[0]
@@ -93,7 +93,7 @@ class State:
 
     def update_file_names(self):
         if self.current_video:
-            self.file_names = sorted(glob.glob(os.path.join(DATA_DIR, self.current_video, '*.jpg')), key = utils.natural_sort_key)
+            self.file_names = sorted(glob.glob(os.path.join(DATA_DIR, self.current_video, '*.png')), key = utils.natural_sort_key)
             self.nb_frames = len(self.file_names)
 
     def save_state(self):
@@ -128,6 +128,7 @@ class State:
 
     def set_current_frame(self, current_frame, frame_mode=None):
         self.track_info.save_to_disk()
+        self.track_info.img_size = self.image_size
 
         self.current_frame = current_frame
 

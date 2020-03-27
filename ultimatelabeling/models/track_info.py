@@ -52,9 +52,18 @@ class TrackInfo:
     def __init__(self, video_name=""):
         self.video_name = video_name
 
+        self.yolo_format = True
+        self.img_size = (0, 0)  # img_size is updated on each set_current_frame() call in state
+
         dir_name = os.path.join(OUTPUT_DIR, self.video_name)
         if not os.path.exists(dir_name):
             os.makedirs(dir_name)
+
+        # Create yolo label directory
+        if self.yolo_format and self.video_name:
+            yolo_dir_name = os.path.join(OUTPUT_DIR, self.video_name, "yolo_labels")
+            if not os.path.exists(yolo_dir_name):
+                os.makedirs(yolo_dir_name)
 
         self.nb_track_ids = 0
         self.class_names = DEFAULT_CLASS_NAMES
@@ -163,6 +172,7 @@ class TrackInfo:
             json.dump(data, f)
 
     def write_detections(self, file_name, detections=None):
+        yolo_format = True
         txt_file = os.path.join(OUTPUT_DIR, "{}/{}.txt".format(self.video_name, file_name))
 
         if detections is None:
@@ -175,6 +185,16 @@ class TrackInfo:
         if len(detections) > 0:
             df = df.append([d.to_dict() for d in detections], ignore_index=True)
         self.df_to_csv(df, txt_file)
+
+        if self.yolo_format and self.img_size != (0, 0):
+            # Save labels in yolo format
+            # TODO: How the fuck do I handle panda data frames properly?
+            h, w = self.img_size
+            df_yolo = df[["class_id", "x", "y", "w", "h"]].copy()
+            df_yolo[["x", "w"]] = df_yolo[["x", "w"]].copy().div(w)
+            df_yolo[["y", "h"]] = df_yolo[["y", "h"]].copy().div(h)
+            yolo_txt_file = os.path.join(OUTPUT_DIR, "{}/yolo_labels/{}.txt".format(self.video_name, file_name))
+            self.df_to_csv(df_yolo, yolo_txt_file)
 
         self.nb_track_ids = max(self.nb_track_ids, max([d.track_id for d in detections] or [0]) + 1)
 
