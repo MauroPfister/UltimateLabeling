@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import QPushButton, QGroupBox, QVBoxLayout, QHBoxLayout, QStyle, QPlainTextEdit, QMessageBox
 from PyQt5.QtCore import QThread, pyqtSignal
-from ultimatelabeling.models.tracker import SocketTracker, KCFTracker
+from ultimatelabeling.models.tracker import SocketTracker, KCFTracker, SiamMaskTracker
 from ultimatelabeling.models import Detection, FrameMode
 from ultimatelabeling.models import KeyboardListener
 
@@ -78,6 +78,8 @@ class TrackingButtons(QGroupBox):
         self.i = i
 
         if name == "SiamMask":
+            self.thread = TrackingThread(self.state, tracker=SiamMaskTracker)
+        elif name == "SiamMask Server":
             self.thread = TrackingThread(self.state, tracker=SocketTracker, port=PORTS[i])
         else:
             self.thread = TrackingThread(self.state, tracker=KCFTracker, state=self.state)
@@ -109,7 +111,7 @@ class TrackingButtons(QGroupBox):
         QMessageBox.warning(self, "", "Error: {}".format(err_message))
 
     def on_start_tracking(self):
-        if not self.state.tracking_server_running and self.i >= 1:
+        if not self.state.tracking_server_running and self.i > 1:
             QMessageBox.warning(self, "", "Tracking server is not connected.")
             return
 
@@ -146,7 +148,7 @@ class TrackingManager(QGroupBox, KeyboardListener):
         self.trackers = [
             TrackingButtons(self.state, self, 0, "KCF"),
             TrackingButtons(self.state, self, 1, "SiamMask"),
-            TrackingButtons(self.state, self, 2, "SiamMask")
+            TrackingButtons(self.state, self, 2, "SiamMask Server")
         ]
 
         layout = QHBoxLayout()
