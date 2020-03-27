@@ -202,7 +202,7 @@ class ImageWidget(QWidget, StateListener, KeyboardListener):
         self.state = state
         self.state.add_listener(self)
 
-        self.MIN_ZOOM, self.MAX_ZOOM = 0.9, 8.0
+        self.MIN_ZOOM, self.MAX_ZOOM, self.ZOOM_FACTOR = 0.03, 100.0, 0.8
         self.zoom = 1.0
         self.offset = QPoint(0., 0.)
         self.original_img = None
@@ -368,9 +368,9 @@ class ImageWidget(QWidget, StateListener, KeyboardListener):
         pos = event.pos()
         old_p = (pos - self.offset) / self.zoom
 
-        numPixels = event.pixelDelta().y()
-        self.zoom = max(min(self.zoom + numPixels / 40, self.MAX_ZOOM), self.MIN_ZOOM)
-
+        numDegrees = event.angleDelta().y() / 8
+        numSteps = numDegrees / 15.0
+        self.zoom = max(min(self.zoom * pow(self.ZOOM_FACTOR, numSteps), self.MAX_ZOOM), self.MIN_ZOOM)
         new_p = old_p * self.zoom + self.offset
         self.offset += pos - new_p
 
