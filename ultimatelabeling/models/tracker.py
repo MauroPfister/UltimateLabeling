@@ -49,10 +49,12 @@ class SiamMaskTracker(Tracker):
         self.state = None
 
     def init(self, img, bbox):
+        img = cv2.imread(img)
         self.state = siamese_init(img, bbox.center, bbox.size, self.tracker, self.cfg['hp'], use_cuda=self.use_cuda)
 
     def track(self, img):
-        self.state = siamese_track(self.state, img.copy(), mask_enable=True, refine_enable=True, use_cuda=self.use_cuda)
+        img = cv2.imread(img)
+        self.state = siamese_track(self.state, img, mask_enable=True, refine_enable=True, use_cuda=self.use_cuda)
         bbox = Bbox.from_center_size(self.state['target_pos'], self.state['target_sz'])
         polygon = Polygon(self.state['ploygon'].flatten())
 
