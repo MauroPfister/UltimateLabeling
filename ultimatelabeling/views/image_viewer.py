@@ -202,7 +202,7 @@ class ImageWidget(QWidget, StateListener, KeyboardListener):
         self.state = state
         self.state.add_listener(self)
 
-        self.MIN_ZOOM, self.MAX_ZOOM, self.ZOOM_FACTOR = 0.03, 100.0, 0.8
+        self.MIN_ZOOM, self.MAX_ZOOM, self.ZOOM_FACTOR = 0.03, 100.0, 1.25
         self.zoom = 1.0
         self.offset = QPoint(0., 0.)
         self.original_img = None
