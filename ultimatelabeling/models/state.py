@@ -92,8 +92,12 @@ class State:
         self.video_list = self.find_videos()
 
     def update_file_names(self):
+        img_formats = ["*.jpg", "*.jpeg", "*.png"]
+        self.file_names = []
         if self.current_video:
-            self.file_names = sorted(glob.glob(os.path.join(DATA_DIR, self.current_video, '*.png')), key = utils.natural_sort_key)
+            for img_format in img_formats:
+                self.file_names.extend(glob.glob(os.path.join(DATA_DIR, self.current_video, img_format)))
+            self.file_names.sort(key=utils.natural_sort_key)
             self.nb_frames = len(self.file_names)
 
     def save_state(self):
